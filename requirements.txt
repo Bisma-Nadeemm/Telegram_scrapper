@@ -1,0 +1,8 @@
+telethon
+python-dotenv
+pysocks
+requests
+beautifulsoup4
+pandas
+tqdm
+asyncio
