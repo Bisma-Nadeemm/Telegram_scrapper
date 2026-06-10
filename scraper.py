@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup, Tag
 from requests import Session
 
 from config import Settings
-from utils import extract_telegram_links, is_recent, parse_date, retry_async
+from utils import extract_telegram_links, parse_date, retry_async
 
 
 logger = logging.getLogger(__name__)
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class ProjectListing:
     project_name: str
     project_url: str
-    date_posted: datetime
+    date_posted: datetime | None
     telegram_links: tuple[str, ...]
 
 
@@ -70,12 +70,7 @@ class WebsiteScraper:
             html = await self._fetch(next_url)
             soup = BeautifulSoup(html, "html.parser")
             page_listings = await self._extract_listings(soup, next_url)
-            recent = [item for item in page_listings if is_recent(item.date_posted, self.settings.recent_days)]
-            found.extend(recent)
-
-            if page_listings and not recent:
-                logger.info("Stopping pagination for %s because this page has no recent projects", start_url)
-                break
+            found.extend(page_listings)
 
             next_url = self._find_next_page(soup, next_url)
 
@@ -128,9 +123,6 @@ class WebsiteScraper:
 
     async def _listing_from_node(self, node: Tag, page_url: str) -> ProjectListing | None:
         date_posted = self._extract_date(node)
-        if not is_recent(date_posted, self.settings.recent_days):
-            return None
-
         project_url = self._extract_project_url(node, page_url)
         project_name = self._extract_project_name(node) or project_url
         telegram_links = extract_telegram_links(str(node))

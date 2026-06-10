@@ -17,6 +17,7 @@ TELEGRAM_RE = re.compile(
     r"(?:https?://)?(?:www\.)?(?:t\.me|telegram\.me|telegram\.dog)/[A-Za-z0-9_+/.-]+",
     re.IGNORECASE,
 )
+TELEGRAM_USERNAME_RE = re.compile(r"(?<![\w.])@[A-Za-z][A-Za-z0-9_]{4,31}\b")
 
 
 def setup_logging() -> None:
@@ -61,6 +62,16 @@ def normalize_telegram_link(link: str) -> str | None:
 
 def dedupe_preserve_order(items: list[str]) -> list[str]:
     return list(dict.fromkeys(items))
+
+
+def extract_public_contacts(text: str | None) -> list[str]:
+    """Extract public Telegram contact handles and links from visible text."""
+    if not text:
+        return []
+
+    contacts = extract_telegram_links(text)
+    contacts.extend(TELEGRAM_USERNAME_RE.findall(text))
+    return dedupe_preserve_order(contacts)
 
 
 def cutoff_datetime(days: int) -> datetime:
@@ -162,6 +173,11 @@ def save_rows_csv(rows: list[dict], output_file: str) -> None:
         "admin_username",
         "telegram_user_id",
         "role",
+        "channel_title",
+        "channel_username",
+        "channel_description",
+        "linked_contacts",
+        "pinned_messages",
     ]
     df = pd.DataFrame(rows, columns=columns)
     df.to_csv(output_file, index=False, encoding="utf-8")

@@ -1,3 +1,5 @@
 # Add one website URL per line.
 # https://site1.com
 # https://site2.com
+https://www.pinksale.finance
+https://www.coingecko.com/en/crypto-gainers-losers

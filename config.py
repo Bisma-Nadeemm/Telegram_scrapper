@@ -25,7 +25,6 @@ class Settings:
     proxy_pass: str | None
     session_name: str
     request_timeout_seconds: int
-    recent_days: int
     max_pages_per_site: int
     concurrency: int
 
@@ -61,7 +60,6 @@ def load_settings() -> Settings:
         proxy_pass=os.getenv("PROXY_PASS") or None,
         session_name=os.getenv("SESSION_NAME", "telegram_scrapper"),
         request_timeout_seconds=int(os.getenv("REQUEST_TIMEOUT_SECONDS", "20")),
-        recent_days=int(os.getenv("RECENT_DAYS", "5")),
         max_pages_per_site=int(os.getenv("MAX_PAGES_PER_SITE", "25")),
         concurrency=int(os.getenv("CONCURRENCY", "5")),
     )
